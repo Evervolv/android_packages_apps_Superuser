@@ -12,8 +12,12 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -22,17 +26,13 @@ import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.TextView;
 
-import com.actionbarsherlock.app.SherlockFragment;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
-import com.actionbarsherlock.view.MenuItem;
 import com.noshufou.android.su.preferences.Preferences;
 import com.noshufou.android.su.util.Util;
 import com.noshufou.android.su.util.Util.MenuId;
 import com.noshufou.android.su.util.Util.VersionInfo;
 import com.noshufou.android.su.widget.ChangeLog;
 
-public class InfoFragment extends SherlockFragment 
+public class InfoFragment extends Fragment 
         implements OnClickListener, OnCheckedChangeListener {
     private static final String TAG = "Su.InfoFragment";
     
@@ -59,7 +59,7 @@ public class InfoFragment extends SherlockFragment
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
-        mPrefs = PreferenceManager.getDefaultSharedPreferences(getSherlockActivity());
+        mPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
         setHasOptionsMenu(true);
     }
 
@@ -135,7 +135,7 @@ public class InfoFragment extends SherlockFragment
                 startActivity(eliteIntent);
                 break;
             case R.id.binary_updater:
-                final Intent updaterIntent = new Intent(getSherlockActivity(), UpdaterActivity.class);
+                final Intent updaterIntent = new Intent(getActivity(), UpdaterActivity.class);
                 startActivity(updaterIntent);
                 break;
             case R.id.temp_unroot:
@@ -160,18 +160,18 @@ public class InfoFragment extends SherlockFragment
 
         @Override
         protected void onPreExecute() {
-            getSherlockActivity().setSupportProgressBarIndeterminateVisibility(true);
+            getActivity().setProgressBarIndeterminateVisibility(true);
         }
 
         @Override
         protected Void doInBackground(Void... arg) {
-            publishProgress(0, Util.getSuperuserVersionInfo(getSherlockActivity()));
-            publishProgress(1, Util.elitePresent(getSherlockActivity(), false, 0));
+            publishProgress(0, Util.getSuperuserVersionInfo(getActivity()));
+            publishProgress(1, Util.elitePresent(getActivity(), false, 0));
 
             String suPath = Util.whichSu();
             if (suPath != null) {
                 publishProgress(2, Util.getSuVersionInfo());
-                String suTools = Util.ensureSuTools(getSherlockActivity());
+                String suTools = Util.ensureSuTools(getActivity());
                 try {
                     Process process = new ProcessBuilder(suTools, "ls", "-l", suPath)
                     .redirectErrorStream(true).start();
@@ -187,7 +187,7 @@ public class InfoFragment extends SherlockFragment
                 publishProgress(2, null);
             }
             
-            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getSherlockActivity());
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
             publishProgress(4,
                     prefs.getBoolean(Preferences.OUTDATED_NOTIFICATION, true),
                     prefs.getBoolean(Preferences.TEMP_UNROOT, false),
@@ -200,7 +200,7 @@ public class InfoFragment extends SherlockFragment
             switch ((Integer) values[0]) {
                 case 0:
                     VersionInfo superuserVersion = (VersionInfo) values[1];
-                    mSuperuserVersion.setText(getSherlockActivity().getString(
+                    mSuperuserVersion.setText(getActivity().getString(
                             R.string.info_version,
                             superuserVersion.version,
                             superuserVersion.versionCode));
@@ -215,7 +215,7 @@ public class InfoFragment extends SherlockFragment
                 case 2:
                     VersionInfo suVersion = (VersionInfo) values[1];
                     if (suVersion != null) {
-                        mSuVersion.setText(getSherlockActivity().getString(
+                        mSuVersion.setText(getActivity().getString(
                                 R.string.info_bin_version,
                                 suVersion.version,
                                 suVersion.versionCode));
@@ -262,7 +262,7 @@ public class InfoFragment extends SherlockFragment
 
         @Override
         protected void onPostExecute(Void result) {
-            getSherlockActivity().setSupportProgressBarIndeterminateVisibility(false);
+            getActivity().setProgressBarIndeterminateVisibility(false);
         }
     }
 
@@ -275,7 +275,7 @@ public class InfoFragment extends SherlockFragment
 
         @Override
         protected void onPreExecute() {
-            getSherlockActivity().setSupportProgressBarIndeterminateVisibility(true);
+            getActivity().setProgressBarIndeterminateVisibility(true);
             mTempUnroot.setEnabled(false);
             mOtaSurvival.setEnabled(false);
         }
@@ -285,9 +285,9 @@ public class InfoFragment extends SherlockFragment
             boolean status = false;
             boolean startState = mPrefs.getBoolean(mKey, false);
             if (startState) {
-                status = Util.restoreSu(getSherlockActivity(), true, mKey);
+                status = Util.restoreSu(getActivity(), true, mKey);
             } else {
-                status = Util.backupSu(getSherlockActivity(), mKey.equals(Preferences.TEMP_UNROOT));
+                status = Util.backupSu(getActivity(), mKey.equals(Preferences.TEMP_UNROOT));
             }
 
             if (status) {
@@ -299,7 +299,7 @@ public class InfoFragment extends SherlockFragment
 
         @Override
         protected void onPostExecute(Boolean result) {
-            getSherlockActivity().setSupportProgressBarIndeterminateVisibility(false);
+            getActivity().setProgressBarIndeterminateVisibility(false);
             new UpdateInfo().execute();
         }
     }

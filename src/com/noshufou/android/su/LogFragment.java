@@ -8,21 +8,20 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.actionbarsherlock.app.SherlockListFragment;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
-import com.actionbarsherlock.view.MenuItem;
 import com.noshufou.android.su.provider.PermissionsProvider.Logs;
 import com.noshufou.android.su.util.Util.MenuId;
 import com.noshufou.android.su.widget.LogAdapter;
 import com.noshufou.android.su.widget.PinnedHeaderListView;
 
-public class LogFragment extends SherlockListFragment
+public class LogFragment extends ListFragment
         implements LoaderManager.LoaderCallbacks<Cursor>, FragmentWithLog {
     private static final String TAG = "Su.LogFragment";
     

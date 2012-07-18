@@ -28,11 +28,15 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -42,10 +46,6 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.actionbarsherlock.app.SherlockListFragment;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
-import com.actionbarsherlock.view.MenuItem;
 import com.noshufou.android.su.preferences.Preferences;
 import com.noshufou.android.su.provider.PermissionsProvider.Apps;
 import com.noshufou.android.su.provider.PermissionsProvider.Logs;
@@ -55,7 +55,7 @@ import com.noshufou.android.su.util.Util.MenuId;
 import com.noshufou.android.su.widget.LogAdapter;
 import com.noshufou.android.su.widget.PinnedHeaderListView;
 
-public class AppDetailsFragment extends SherlockListFragment
+public class AppDetailsFragment extends ListFragment
     implements LoaderManager.LoaderCallbacks<Cursor>, FragmentWithLog {
     private static final String TAG = "Su.AppDetailsFragment";
 
@@ -247,7 +247,6 @@ public class AppDetailsFragment extends SherlockListFragment
             case MenuId.LOGGING:
                 setOptions(itemId);
                 return true;
-            case R.id.abs__home:
             case android.R.id.home:
                 if (mDualPane) {
                     closeDetails();
@@ -294,7 +293,7 @@ public class AppDetailsFragment extends SherlockListFragment
         }
         cr.update(ContentUris.withAppendedId(Apps.CONTENT_URI, mShownIndex),
                 values, null, null);
-        getSherlockActivity().invalidateOptionsMenu();
+        getActivity().invalidateOptionsMenu();
     }
     
     public void toggle(View view) {
@@ -400,8 +399,8 @@ public class AppDetailsFragment extends SherlockListFragment
                     mDetailsContainer.setVisibility(View.VISIBLE);
                 }
 
-                getSherlockActivity().getSupportActionBar().setTitle(data.getString(DETAILS_COLUMN_NAME));
-                getSherlockActivity().getSupportActionBar().setSubtitle(data.getString((DETAILS_COLUMN_PACKAGE)));
+                getActivity().getActionBar().setTitle(data.getString(DETAILS_COLUMN_NAME));
+                getActivity().getActionBar().setSubtitle(data.getString((DETAILS_COLUMN_PACKAGE)));
                 if (mAppName != null) {
                     mAppName.setText(data.getString(DETAILS_COLUMN_NAME));
                     mAppIcon.setImageDrawable(
@@ -438,7 +437,7 @@ public class AppDetailsFragment extends SherlockListFragment
                 }
             }
             mReady = true;
-            getSherlockActivity().invalidateOptionsMenu();
+            getActivity().invalidateOptionsMenu();
             break;
         case LOG_LOADER:
             mAdapter.swapCursor(data);

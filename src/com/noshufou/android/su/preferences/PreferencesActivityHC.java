@@ -7,8 +7,10 @@ import android.content.Context;
 import android.nfc.NfcAdapter;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceActivity;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -18,12 +20,10 @@ import android.widget.ListAdapter;
 import android.widget.Switch;
 import android.widget.TextView;
 
-import com.actionbarsherlock.app.SherlockPreferenceActivity;
-import com.actionbarsherlock.view.MenuItem;
 import com.noshufou.android.su.R;
 import com.noshufou.android.su.util.Util;
 
-public class PreferencesActivityHC extends SherlockPreferenceActivity {
+public class PreferencesActivityHC extends PreferenceActivity {
     
     private List<Header> mHeaders;
 

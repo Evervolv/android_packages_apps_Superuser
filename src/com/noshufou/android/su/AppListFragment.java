@@ -13,6 +13,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -27,7 +28,6 @@ import android.widget.ListView;
 import android.widget.SectionIndexer;
 import android.widget.TextView;
 
-import com.actionbarsherlock.app.SherlockListFragment;
 import com.noshufou.android.su.preferences.Preferences;
 import com.noshufou.android.su.provider.PermissionsProvider.Apps;
 import com.noshufou.android.su.provider.PermissionsProvider.Logs;
@@ -37,7 +37,7 @@ import com.noshufou.android.su.widget.AppListItem;
 import com.noshufou.android.su.widget.PinnedHeaderListView;
 import com.noshufou.android.su.widget.PinnedHeaderListView.PinnedHeaderCache;
 
-public class AppListFragment extends SherlockListFragment implements LoaderCallbacks<Cursor> {
+public class AppListFragment extends ListFragment implements LoaderCallbacks<Cursor> {
 //    private static final String TAG = "Su.AppListFragment";
     
     private boolean mShowStatusIcons = true;

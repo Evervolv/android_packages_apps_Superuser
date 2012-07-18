@@ -28,7 +28,6 @@
 
     <style name="Theme.Superuser.Preferences" parent="Theme.Superuser">
         <item name="android:windowBackground">@color/window_background</item>
-        <item name="actionBarStyle">@style/Widget.Superuser.ActionBar.Details</item>
         <item name="android:actionBarStyle">@style/Widget.Superuser.ActionBar.Details</item>
     </style>
 </resources>

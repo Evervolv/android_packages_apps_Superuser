@@ -31,14 +31,14 @@ import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
+import android.preference.PreferenceActivity;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceScreen;
 import android.util.Log;
+import android.view.MenuItem;
+import android.view.Window;
 import android.widget.Toast;
 
-import com.actionbarsherlock.app.SherlockPreferenceActivity;
-import com.actionbarsherlock.view.MenuItem;
-import com.actionbarsherlock.view.Window;
 import com.noshufou.android.su.PinActivity;
 import com.noshufou.android.su.R;
 import com.noshufou.android.su.TagWriterActivity;
@@ -52,7 +52,7 @@ import com.noshufou.android.su.util.Util.VersionInfo;
 import com.noshufou.android.su.widget.AncientNumberPickerDialog;
 import com.noshufou.android.su.widget.ChangeLog;
 
-public class PreferencesActivity extends SherlockPreferenceActivity
+public class PreferencesActivity extends PreferenceActivity
 implements OnSharedPreferenceChangeListener, OnPreferenceChangeListener {
     private static final String TAG = "Su.PreferencesActivity";
 
@@ -81,7 +81,7 @@ implements OnSharedPreferenceChangeListener, OnPreferenceChangeListener {
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 
         super.onCreate(savedInstanceState);
-        setSupportProgressBarIndeterminateVisibility(false);
+        setProgressBarIndeterminateVisibility(false);
 
         setContentView(R.layout.activity_preferences);
 
@@ -378,7 +378,7 @@ implements OnSharedPreferenceChangeListener, OnPreferenceChangeListener {
 
         @Override
         protected void onPreExecute() {
-            setSupportProgressBarIndeterminateVisibility(true);
+            setProgressBarIndeterminateVisibility(true);
         }
 
         @Override
@@ -388,7 +388,7 @@ implements OnSharedPreferenceChangeListener, OnPreferenceChangeListener {
 
         @Override
         protected void onPostExecute(Boolean result) {
-            setSupportProgressBarIndeterminateVisibility(false);
+            setProgressBarIndeterminateVisibility(false);
             if (result) {
                 Toast.makeText(getApplicationContext(),
                         getString(R.string.backup_complete), Toast.LENGTH_SHORT).show();
@@ -400,7 +400,7 @@ implements OnSharedPreferenceChangeListener, OnPreferenceChangeListener {
 
         @Override
         protected void onPreExecute() {
-            setSupportProgressBarIndeterminateVisibility(true);
+            setProgressBarIndeterminateVisibility(true);
         }
 
         @Override
@@ -410,7 +410,7 @@ implements OnSharedPreferenceChangeListener, OnPreferenceChangeListener {
 
         @Override
         protected void onPostExecute(Integer result) {
-            setSupportProgressBarIndeterminateVisibility(false);
+            setProgressBarIndeterminateVisibility(false);
             if (result > -1) {
                 String message = result > 0 ?
                         getResources().getQuantityString(R.plurals.restore_complete, result, result):

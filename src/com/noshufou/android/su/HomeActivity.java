@@ -18,21 +18,20 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.util.Log;
 import android.view.View;
+import android.view.Window;
 import android.widget.AbsListView;
 
-import com.actionbarsherlock.app.SherlockFragmentActivity;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuItem;
-import com.actionbarsherlock.view.Window;
 import com.noshufou.android.su.preferences.Preferences;
 import com.noshufou.android.su.util.Util;
 import com.noshufou.android.su.util.Util.MenuId;
 import com.noshufou.android.su.widget.ChangeLog;
 import com.noshufou.android.su.widget.PagerHeader;
 
-public class HomeActivity extends SherlockFragmentActivity {
+public class HomeActivity extends FragmentActivity {
     private static final String TAG = "Su.HomeActivity";
 
     private static final String STATE_SHOW_DETAILS = "show_details";
@@ -53,7 +52,7 @@ public class HomeActivity extends SherlockFragmentActivity {
 
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         setContentView(R.layout.activity_home);
-        setSupportProgressBarIndeterminateVisibility(false);
+        setProgressBarIndeterminateVisibility(false);
         Log.d(TAG, "after setContentView()");
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
@@ -285,7 +284,7 @@ public class HomeActivity extends SherlockFragmentActivity {
 
         @Override
         protected void onPostExecute(Drawable result) {
-            getSupportActionBar().setLogo(result);
+            getActionBar().setLogo(result);
             if (result instanceof TransitionDrawable) {
                 ((TransitionDrawable)result).startTransition(1000);
             }
