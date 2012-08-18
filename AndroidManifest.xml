@@ -137,7 +137,6 @@
         </receiver>
         
         <service android:name=".service.ResultService" />
-        <service android:name=".service.PermissionsDbService" />
         <service android:name=".service.UpdaterService" />
         
         <provider android:name=".provider.PermissionsProvider"
