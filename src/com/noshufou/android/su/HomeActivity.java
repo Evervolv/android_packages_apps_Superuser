@@ -94,7 +94,7 @@ public class HomeActivity extends FragmentActivity implements DialogInterface.On
         ChangeLog cl = new ChangeLog(this);
         if (cl.firstRun()) {
             cl.getLogDialog().show();
-            Util.writeDetaultStoreFile(this);
+            Util.writeDefaultStoreFile(this);
         }
         
         // Check for root enabled on CyanogenMod 9
