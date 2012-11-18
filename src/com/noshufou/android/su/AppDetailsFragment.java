@@ -15,6 +15,8 @@
  ******************************************************************************/
 package com.noshufou.android.su;
 
+import java.util.ArrayList;
+
 import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.ContentUris;
@@ -79,7 +81,11 @@ public class AppDetailsFragment extends ListFragment
     private static final int DETAILS_LOADER = 1;
     private static final int LOG_LOADER = 2;
 
+    private int mShownUid = -1;
+    private int mShownAllow = 0;
     private long mShownIndex = -1;
+    
+    private ArrayList<Long> mShownIndexes = new ArrayList<Long>(); 
 
     private boolean mReady = false;
     private boolean mDualPane = false;
@@ -124,6 +130,13 @@ public class AppDetailsFragment extends ListFragment
         getLoaderManager().restartLoader(LOG_LOADER, null, this);
     }
     
+    public void setShownItem(long id, int uid, int allow) {
+    	mShownUid = uid;
+    	mShownAllow = allow;
+    	getLoaderManager().restartLoader(DETAILS_LOADER, null, this);
+    	getLoaderManager().restartLoader(LOG_LOADER, null, this);
+    }
+    
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -163,11 +176,14 @@ public class AppDetailsFragment extends ListFragment
         
         if (savedInstanceState != null && 
                 savedInstanceState.containsKey("mShownIndex")) {
-            mShownIndex = savedInstanceState.getLong("mShownIndex");
+            mShownUid = savedInstanceState.getInt("mShownUid");
+            mShownAllow = savedInstanceState.getInt("mShownAllow");
         } else if (getArguments() != null) {
-            mShownIndex = getArguments().getLong("index", 0);
+            mShownUid = getArguments().getInt("uid", 0);
+            mShownAllow = getArguments().getInt("allow", 0);
         } else {
-            mShownIndex = 0;
+            mShownUid = -1;
+            mShownAllow = 0;
         }
         
         setupListView();
@@ -260,8 +276,9 @@ public class AppDetailsFragment extends ListFragment
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
-        if (mShownIndex != -1) {
-            outState.putLong("mShownIndex", mShownIndex);
+        if (mShownUid != -1) {
+            outState.putInt("mShownUid", mShownUid);
+            outState.putInt("mShownAllow", mShownAllow);
         }
 
         super.onSaveInstanceState(outState);
@@ -291,7 +308,7 @@ public class AppDetailsFragment extends ListFragment
                 values.put(Apps.LOGGING, mLoggingEnabled);
                 break;
         }
-        cr.update(ContentUris.withAppendedId(Apps.CONTENT_URI, mShownIndex),
+        cr.update(ContentUris.withAppendedId(Apps.CONTENT_URI_UID, mShownUid),
                 values, null, null);
         getActivity().invalidateOptionsMenu();
     }
@@ -309,7 +326,6 @@ public class AppDetailsFragment extends ListFragment
         } else {
             doToggle();
         }
-
     }
     
     @Override
@@ -321,20 +337,23 @@ public class AppDetailsFragment extends ListFragment
 
     private void doToggle() {
         ContentResolver cr = getActivity().getContentResolver();
-        Uri uri = Uri.withAppendedPath(Apps.CONTENT_URI, String.valueOf(mShownIndex));
 
-        ContentValues values = new ContentValues();
-        values.put(Apps.ALLOW, mAllow == 1?0:1);
-        cr.update(uri, values, null, null);
-        
-        // Update the log
-        values.clear();
-        values.put(Logs.DATE, System.currentTimeMillis());
-        values.put(Logs.TYPE, Logs.LogType.TOGGLE);
-        cr.insert(Uri.withAppendedPath(Logs.CONTENT_URI, String.valueOf(mShownIndex)), values);
-        Intent intent = new Intent(getActivity(), ResultService.class);
-        intent.putExtra(ResultService.EXTRA_ACTION, ResultService.ACTION_RECYCLE);
-        getActivity().startService(intent);
+        for (Long id : mShownIndexes) {
+        	Uri uri = Uri.withAppendedPath(Apps.CONTENT_URI, String.valueOf(id));
+        	ContentValues values = new ContentValues();
+        	values.put(Apps.ALLOW, mAllow == 1?0:1);
+        	cr.update(uri, values, null, null);
+
+        	// Update the log
+        	values.clear();
+        	values.put(Logs.DATE, System.currentTimeMillis());
+        	values.put(Logs.TYPE, Logs.LogType.TOGGLE);
+        	cr.insert(Uri.withAppendedPath(Logs.CONTENT_URI, String.valueOf(id)), values);
+        	Intent intent = new Intent(getActivity(), ResultService.class);
+        	intent.putExtra(ResultService.EXTRA_ACTION, ResultService.ACTION_RECYCLE);
+        	getActivity().startService(intent);
+        }
+        setShownItem(mShownIndex, mShownUid, mShownAllow == 0?1:0);
     }
     
     public void forget(View view) {
@@ -343,9 +362,10 @@ public class AppDetailsFragment extends ListFragment
         }
 
         ContentResolver cr = getActivity().getContentResolver();
-        Uri uri = Uri.withAppendedPath(Apps.CONTENT_URI, String.valueOf(mShownIndex));
-
-        cr.delete(uri, null, null);
+        for (Long id : mShownIndexes) {
+        	Uri uri = Uri.withAppendedPath(Apps.CONTENT_URI, String.valueOf(id));
+        	cr.delete(uri, null, null);
+        }
         closeDetails();
     }
     
@@ -355,8 +375,11 @@ public class AppDetailsFragment extends ListFragment
     
     @Override
     public void clearLog() {
-        if (mShownIndex != -1) {
-            getActivity().getContentResolver().delete(ContentUris.withAppendedId(Logs.CONTENT_URI, mShownIndex), null, null);
+        if (!mShownIndexes.isEmpty()) {
+        	for (Long id : mShownIndexes) {
+        		getActivity().getContentResolver()
+        				.delete(ContentUris.withAppendedId(Logs.CONTENT_URI, id), null, null);
+        	}
         }
     }
 
@@ -379,12 +402,16 @@ public class AppDetailsFragment extends ListFragment
         switch (id) {
         case DETAILS_LOADER:
             return new CursorLoader(getActivity(),
-                    ContentUris.withAppendedId(Apps.CONTENT_URI, mShownIndex),
-                    DETAILS_PROJECTION, null, null, null);
+                    ContentUris.withAppendedId(Apps.CONTENT_URI_UID, mShownUid),
+                    DETAILS_PROJECTION, 
+                    Apps.ALLOW + "=?", 
+                    new String[] { String.valueOf(mShownAllow) },
+                    null);
         case LOG_LOADER:
             return new CursorLoader(getActivity(),
-                    ContentUris.withAppendedId(Logs.CONTENT_URI, mShownIndex),
-                    LogAdapter.PROJECTION, null, null, null);
+                    ContentUris.withAppendedId(Apps.CONTENT_UID_LOGS, mShownUid),
+                    LogAdapter.PROJECTION, Apps.ALLOW + "=?", new String[] { String.valueOf(mShownAllow) },
+                    null);
         default:
             throw new IllegalArgumentException("Unknown Loader: " + id);
         }
@@ -435,6 +462,15 @@ public class AppDetailsFragment extends ListFragment
                     mNotificationsEnabled = notificationsStr.equals("1")?true:false;
                     mLoggingEnabled = loggingStr.equals("1")?true:false;
                 }
+                StringBuilder commandText = new StringBuilder(data.getString(DETAILS_COLUMN_EXEC_CMD));
+                mShownIndexes.clear();
+                mShownIndexes.add(data.getLong(0));
+                while (data.moveToNext()) {
+                	commandText.append(", ");
+                	commandText.append(data.getString(DETAILS_COLUMN_EXEC_CMD));
+                	mShownIndexes.add(data.getLong(0));
+                }
+                mCommandText.setText(commandText.toString());
             }
             mReady = true;
             getActivity().invalidateOptionsMenu();
